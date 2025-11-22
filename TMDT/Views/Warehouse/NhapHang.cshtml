@@ -1,0 +1,120 @@
+@model TMDT.Models.WarehouseReceiptViewModel
+@{
+    ViewBag.Title = "Nhập hàng vào kho";
+    Layout = "~/Views/Shared/_Dashboard_1.cshtml";
+}
+
+<div class="content-wrapper">
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>Nhập hàng vào kho</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="@Url.Action("DashboardKho", "Warehouse")">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Nhập hàng</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content">
+        <div class="container-fluid">
+            @using (Html.BeginForm("NhapHang", "Warehouse", FormMethod.Post, new { @class = "form-horizontal" }))
+            {
+                @Html.AntiForgeryToken()
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-dolly"></i> Thông tin phiếu nhập</h3>
+                    </div>
+                    <div class="card-body">
+                        @if (ViewBag.Success != null)
+                        {
+                            <div class="alert alert-success alert-dismissible">
+                                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                <strong>Thành công!</strong> @ViewBag.Success
+                            </div>
+                        }
+                        @if (ViewBag.Error != null)
+                        {
+                            <div class="alert alert-danger alert-dismissible">
+                                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                <strong>Lỗi!</strong> @ViewBag.Error
+                            </div>
+                        }
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Sản phẩm <span class="text-danger">*</span></label>
+                                    @Html.DropDownList("idProduct", 
+                                        ViewBag.Products as SelectList, 
+                                        "-- Chọn sản phẩm --", 
+                                        new { @class = "form-control select2", required = "required" })
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Số lượng nhập <span class="text-danger">*</span></label>
+                                    @Html.TextBoxFor(m => m.quantity, new { @class = "form-control", type = "number", min = "1", required = "required", placeholder = "Nhập số lượng" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Loại nhập kho</label>
+                                    @Html.DropDownListFor(m => m.receiptType, 
+                                        new SelectList(new[] { "Nhập mới", "Nhập bổ sung", "Nhập trả lại", "Khác" }), 
+                                        new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Thông tin nhà cung cấp</label>
+                                    @Html.TextBoxFor(m => m.supplierInfo, new { @class = "form-control", placeholder = "Tên nhà cung cấp (nếu có)" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Tình trạng sản phẩm</label>
+                            @Html.DropDownListFor(m => m.condition, 
+                                new SelectList(new[] { "Mới 100%", "Đã qua sử dụng - Như mới", "Đã qua sử dụng - Tốt", "Đã qua sử dụng - Khá" }), 
+                                "-- Chọn tình trạng --",
+                                new { @class = "form-control" })
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ghi chú</label>
+                            @Html.TextAreaFor(m => m.notes, new { @class = "form-control", rows = "3", placeholder = "Ghi chú về phiếu nhập (nếu có)" })
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check"></i> Xác nhận nhập kho
+                        </button>
+                        <a href="@Url.Action("DashboardKho", "Warehouse")" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Hủy
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.select2').select2({
+                theme: 'bootstrap4'
+            });
+        });
+    </script>
+}

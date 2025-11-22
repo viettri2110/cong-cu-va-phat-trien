@@ -1,0 +1,283 @@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test ChatBot Message - Debug</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .status-box {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 2px solid #ddd;
+        }
+        .success { background: #d4edda; border-color: #28a745; }
+        .error { background: #f8d7da; border-color: #dc3545; }
+        .info { background: #d1ecf1; border-color: #17a2b8; }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover { background: #0056b3; }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 3px;
+            overflow-x: auto;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px solid #007bff;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test ChatBot Message System</h1>
+    
+    <div class="test-section">
+        <h2>📊 Trạng thái Session</h2>
+        <div class="status-box @(Session["idAccount"] != null ? "success" : "error")">
+            @if (Session["idAccount"] != null)
+            {
+                <strong>✅ Đã đăng nhập</strong><br>
+                <strong>User ID:</strong> @Session["idAccount"]<br>
+                <strong>Role ID:</strong> @Session["idRole"]<br>
+                <strong>Username:</strong> @Session["userName"]
+            }
+            else
+            {
+                <strong>❌ CHƯA ĐĂNG NHẬP</strong><br>
+                <p>⚠️ Bạn cần <a href="/Account/Login">đăng nhập</a> trước khi test!</p>
+            }
+        </div>
+    </div>
+
+    @if (Session["idAccount"] != null)
+    {
+        <div class="test-section">
+            <h2>📝 Test 1: Gửi tin nhắn User → Admin</h2>
+            <form id="testForm1">
+                <textarea id="message1" rows="3" placeholder="Nhập tin nhắn test... (VD: Xin chào admin)">Hello admin, đây là tin nhắn test!</textarea>
+                <button type="submit">🚀 Gửi tin nhắn</button>
+            </form>
+            <div id="result1"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📥 Test 2: Lấy danh sách tin nhắn</h2>
+            <button onclick="loadMessages()">📋 Load Messages</button>
+            <div id="result2"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔔 Test 3: Đếm tin nhắn chưa đọc</h2>
+            <button onclick="checkUnread()">🔢 Check Unread Count</button>
+            <div id="result3"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 Test 4: Kiểm tra Database</h2>
+            <button onclick="checkDatabase()">🗄️ Check Database</button>
+            <div id="result4"></div>
+        </div>
+    }
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        // Test 1: Gửi tin nhắn
+        $('#testForm1').submit(function(e) {
+            e.preventDefault();
+            var msg = $('#message1').val();
+            
+            $('#result1').html('<div class="status-box info">⏳ Đang gửi...</div>');
+            
+            console.log('🧪 Testing SendUserChatBotMessage');
+            console.log('📦 Message:', msg);
+            
+            $.ajax({
+                url: '/Chat/SendUserChatBotMessage',
+                method: 'POST',
+                data: { message: msg },
+                success: function(response) {
+                    console.log('✅ API Response:', response);
+                    
+                    var html = '<div class="status-box ' + (response.success ? 'success' : 'error') + '">';
+                    html += '<strong>' + (response.success ? '✅ SUCCESS' : '❌ FAILED') + '</strong><br>';
+                    html += '<strong>Message:</strong> ' + response.message + '<br>';
+                    html += '<pre>' + JSON.stringify(response, null, 2) + '</pre>';
+                    html += '</div>';
+                    
+                    $('#result1').html(html);
+                    
+                    if (response.success) {
+                        alert('✅ Tin nhắn đã được gửi! Hãy kiểm tra database hoặc trang admin.');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('❌ AJAX Error:', error);
+                    console.error('Response:', xhr.responseText);
+                    
+                    var html = '<div class="status-box error">';
+                    html += '<strong>❌ AJAX ERROR</strong><br>';
+                    html += '<strong>Status:</strong> ' + xhr.status + '<br>';
+                    html += '<strong>Error:</strong> ' + error + '<br>';
+                    html += '<pre>' + xhr.responseText.substring(0, 500) + '</pre>';
+                    html += '</div>';
+                    
+                    $('#result1').html(html);
+                }
+            });
+        });
+
+        // Test 2: Load messages
+        function loadMessages() {
+            $('#result2').html('<div class="status-box info">⏳ Đang tải...</div>');
+            
+            console.log('🧪 Testing GetMyChatBotMessages');
+            
+            $.ajax({
+                url: '/Chat/GetMyChatBotMessages',
+                method: 'GET',
+                success: function(response) {
+                    console.log('✅ Messages loaded:', response);
+                    
+                    var html = '<div class="status-box success">';
+                    html += '<strong>✅ Đã tải tin nhắn</strong><br>';
+                    html += '<strong>Số lượng:</strong> ' + (response.messages ? response.messages.length : 0) + '<br>';
+                    html += '<pre>' + JSON.stringify(response, null, 2) + '</pre>';
+                    html += '</div>';
+                    
+                    $('#result2').html(html);
+                },
+                error: function(xhr, status, error) {
+                    console.error('❌ Error loading messages:', error);
+                    
+                    var html = '<div class="status-box error">';
+                    html += '<strong>❌ ERROR</strong><br>';
+                    html += '<pre>' + xhr.responseText.substring(0, 500) + '</pre>';
+                    html += '</div>';
+                    
+                    $('#result2').html(html);
+                }
+            });
+        }
+
+        // Test 3: Check unread
+        function checkUnread() {
+            $('#result3').html('<div class="status-box info">⏳ Đang kiểm tra...</div>');
+            
+            console.log('🧪 Testing GetChatBotUnreadCount');
+            
+            $.ajax({
+                url: '/Chat/GetChatBotUnreadCount',
+                method: 'GET',
+                success: function(response) {
+                    console.log('✅ Unread count:', response);
+                    
+                    var html = '<div class="status-box success">';
+                    html += '<strong>✅ Số tin nhắn chưa đọc:</strong> ' + response.count + '<br>';
+                    html += '<pre>' + JSON.stringify(response, null, 2) + '</pre>';
+                    html += '</div>';
+                    
+                    $('#result3').html(html);
+                },
+                error: function(xhr, status, error) {
+                    console.error('❌ Error checking unread:', error);
+                    
+                    var html = '<div class="status-box error">';
+                    html += '<strong>❌ ERROR</strong><br>';
+                    html += '<pre>' + xhr.responseText.substring(0, 500) + '</pre>';
+                    html += '</div>';
+                    
+                    $('#result3').html(html);
+                }
+            });
+        }
+
+        // Test 4: Check database
+        function checkDatabase() {
+            $('#result4').html('<div class="status-box info">⏳ Đang kiểm tra database...</div>');
+            
+            // Gọi API để lấy messages và hiển thị
+            $.ajax({
+                url: '/Chat/GetMyChatBotMessages',
+                method: 'GET',
+                success: function(response) {
+                    var html = '<div class="status-box ' + (response.messages && response.messages.length > 0 ? 'success' : 'info') + '">';
+                    
+                    if (response.messages && response.messages.length > 0) {
+                        html += '<strong>✅ Database có dữ liệu</strong><br>';
+                        html += '<strong>Tổng số tin nhắn:</strong> ' + response.messages.length + '<br><br>';
+                        html += '<table border="1" cellpadding="5" style="width: 100%; border-collapse: collapse;">';
+                        html += '<tr><th>ID</th><th>Content</th><th>Date</th><th>From Admin?</th><th>Read?</th></tr>';
+                        
+                        response.messages.forEach(function(msg) {
+                            html += '<tr>';
+                            html += '<td>' + msg.id + '</td>';
+                            html += '<td>' + msg.content + '</td>';
+                            html += '<td>' + msg.dateSent + '</td>';
+                            html += '<td>' + (msg.isFromAdmin ? '✅ Admin' : '👤 User') + '</td>';
+                            html += '<td>' + (msg.isRead ? '✅' : '❌') + '</td>';
+                            html += '</tr>';
+                        });
+                        
+                        html += '</table>';
+                    } else {
+                        html += '<strong>⚠️ Database TRỐNG</strong><br>';
+                        html += '<p>Chưa có tin nhắn nào trong database!</p>';
+                        html += '<p>Hãy thử gửi tin nhắn ở Test 1 để kiểm tra.</p>';
+                    }
+                    
+                    html += '</div>';
+                    
+                    $('#result4').html(html);
+                },
+                error: function(xhr) {
+                    $('#result4').html('<div class="status-box error"><strong>❌ Lỗi khi kiểm tra database</strong></div>');
+                }
+            });
+        }
+
+        // Auto check unread mỗi 10 giây
+        setInterval(function() {
+            console.log('🔄 Auto checking unread count...');
+            $.ajax({
+                url: '/Chat/GetChatBotUnreadCount',
+                method: 'GET',
+                success: function(response) {
+                    if (response.count > 0) {
+                        console.log('🔔 New messages:', response.count);
+                    }
+                }
+            });
+        }, 10000);
+    </script>
+</body>
+</html>

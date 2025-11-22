@@ -1,0 +1,115 @@
+@model IEnumerable<TMDT.Models.InventoryReportViewModel>
+@{
+    ViewBag.Title = "Báo cáo tồn kho";
+    Layout = "~/Views/Shared/_Dashboard_1.cshtml";
+}
+
+<div class="content-wrapper">
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>Báo cáo tồn kho</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="@Url.Action("DashboardKho", "Warehouse")">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Báo cáo tồn kho</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-boxes"></i> Danh sách tồn kho</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-success btn-sm" onclick="window.print();">
+                            <i class="fas fa-print"></i> In báo cáo
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered table-hover" id="inventoryTable">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Hình ảnh</th>
+                                <th>Sản phẩm</th>
+                                <th>Danh mục</th>
+                                <th>Giá bán</th>
+                                <th>Tồn kho</th>
+                                <th>Trạng thái</th>
+                                <th>Cập nhật</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ int stt = 1; }
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@stt</td>
+                                    <td>
+                                        <img src="@Url.Content("~/Assets/ImageProduct/" + item.imageProduct_1)" 
+                                             style="width:60px;height:60px;object-fit:cover;" alt="@item.nameProduct" />
+                                    </td>
+                                    <td><strong>@item.nameProduct</strong></td>
+                                    <td>@item.categoryName</td>
+                                    <td>@String.Format("{0:N0}", item.priceProduct) đ</td>
+                                    <td>
+                                        <strong class="@(item.currentStock < 5 ? "text-danger" : "text-success")">
+                                            @item.currentStock
+                                        </strong>
+                                    </td>
+                                    <td>
+                                        @if (item.stockStatus == "Hết hàng")
+                                        {
+                                            <span class="badge badge-danger">Hết hàng</span>
+                                        }
+                                        else if (item.stockStatus == "Sắp hết")
+                                        {
+                                            <span class="badge badge-warning">Sắp hết</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-success">Còn hàng</span>
+                                        }
+                                    </td>
+                                    <td>@(item.lastUpdated.HasValue ? item.lastUpdated.Value.ToString("dd/MM/yyyy") : "Chưa cập nhật")</td>
+                                    <td>
+                                        <a href="@Url.Action("LichSuNhapXuat", "Warehouse", new { idProduct = item.idProduct })" 
+                                           class="btn btn-sm btn-info" title="Xem lịch sử">
+                                            <i class="fas fa-history"></i>
+                                        </a>
+                                        <a href="@Url.Action("NhapHang", "Warehouse", new { idProduct = item.idProduct })" 
+                                           class="btn btn-sm btn-success" title="Nhập thêm">
+                                            <i class="fas fa-plus"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                stt++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#inventoryTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Vietnamese.json"
+                },
+                "order": [[5, "asc"]] // Sort by stock ascending
+            });
+        });
+    </script>
+}

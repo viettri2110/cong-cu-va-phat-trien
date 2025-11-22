@@ -1,0 +1,277 @@
+@model List<TMDT.Models.ChatRoomViewModel>
+@{
+    ViewBag.Title = "Quản lý Chat";
+    Layout = "~/Views/Shared/_Dashboard_1.cshtml";
+}
+
+<style>
+    .chat-item {
+        display: flex;
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+        transition: background 0.3s;
+        background: white;
+    }
+    
+    .chat-item:hover {
+        background: #f8f9fa;
+    }
+    
+    .chat-item img {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        object-fit: cover;
+        margin-right: 15px;
+    }
+    
+    .chat-item-content {
+        flex: 1;
+    }
+    
+    .chat-item-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+    }
+    
+    .chat-item-name {
+        font-weight: bold;
+        color: #333;
+        font-size: 13px;
+    }
+    
+    .chat-item-time {
+        font-size: 12px;
+        color: #999;
+    }
+    
+    .chat-item-product {
+        font-size: 13px;
+        color: #667eea;
+        margin-bottom: 5px;
+    }
+    
+    .chat-item-message {
+        font-size: 14px;
+        color: #666;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .message-badge {
+        background: #28a745;
+        color: white;
+        border-radius: 12px;
+        padding: 2px 8px;
+        font-size: 11px;
+        font-weight: bold;
+        margin-right: 5px;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #999;
+    }
+    
+    .empty-state i {
+        font-size: 64px;
+        margin-bottom: 20px;
+        color: #ddd;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: bold;
+    }
+    
+    .status-active {
+        background: #28a745;
+        color: white;
+    }
+</style>
+
+<div class="content-wrapper">
+    <!-- Content Header -->
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0 text-dark"><i class="fas fa-comments"></i> Quản lý Chat</h1>
+                </div>
+                <div class="col-sm-6">
+                    <div class="float-right">
+                        <span class="badge badge-info">Tổng: @Model.Count phòng chat</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <i class="fas fa-check-circle"></i> @TempData["Success"]
+                </div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <i class="fas fa-exclamation-circle"></i> @TempData["Error"]
+                </div>
+            }
+            
+            <!-- Thống kê -->
+            <div class="row mb-3">
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-info">
+                        <div class="inner">
+                            <h3>@Model.Count</h3>
+                            <p>Tổng phòng chat</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-success">
+                        <div class="inner">
+                            <h3>@Model.Sum(x => x.unreadCount)</h3>
+                            <p>Tổng tin nhắn</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-warning">
+                        <div class="inner">
+                            <h3>@Model.Count(x => x.lastMessageDate.HasValue && x.lastMessageDate.Value.Date == DateTime.Now.Date)</h3>
+                            <p>Chat hôm nay</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-danger">
+                        <div class="inner">
+                            <h3>@Model.Count(x => x.lastMessageDate.HasValue)</h3>
+                            <p>Phòng có hoạt động</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            @if (Model.Any())
+            {
+                <div class="card">
+                    <div class="card-header bg-gradient-primary">
+                        <h3 class="card-title"><i class="fas fa-list"></i> Danh sách tất cả các cuộc trò chuyện</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th width="80">Sản phẩm</th>
+                                        <th>Thông tin</th>
+                                        <th>Người tham gia</th>
+                                        <th width="150">Tin nhắn cuối</th>
+                                        <th width="100">Số tin nhắn</th>
+                                        <th width="100">Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var chat in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <img src="~/Assets/ImageProduct/@chat.productImage" 
+                                                     alt="Product" 
+                                                     class="img-thumbnail" 
+                                                     style="width: 60px; height: 60px; object-fit: cover;"
+                                                     onerror="this.src='/Assets/ImageProduct/default.jpg'" />
+                                            </td>
+                                            <td>
+                                                <strong>@chat.productName</strong><br />
+                                                <small class="text-muted">@String.Format("{0:N0} VNĐ", chat.productPrice)</small><br />
+                                                <span class="badge badge-success">ID: @chat.idRoom</span>
+                                            </td>
+                                            <td>
+                                                <small>@chat.otherUserName</small>
+                                            </td>
+                                            <td>
+                                                @if (chat.lastMessageDate.HasValue)
+                                                {
+                                                    <small class="text-muted">
+                                                        @chat.lastMessageDate.Value.ToString("dd/MM/yyyy")<br />
+                                                        @chat.lastMessageDate.Value.ToString("HH:mm")
+                                                    </small>
+                                                }
+                                                else
+                                                {
+                                                    <small class="text-muted">Chưa có tin nhắn</small>
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="message-badge">@chat.unreadCount</span>
+                                            </td>
+                                            <td>
+                                                <a href="@Url.Action("XemChiTietChat", "Chat", new { idRoom = chat.idRoom })" 
+                                                   class="btn btn-sm btn-info" 
+                                                   title="Xem chi tiết">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="@Url.Action("XoaPhongChat", "Chat", new { idRoom = chat.idRoom })" 
+                                                   class="btn btn-sm btn-danger" 
+                                                   title="Xóa phòng chat"
+                                                   onclick="return confirm('Bạn có chắc muốn xóa phòng chat này?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card">
+                    <div class="card-body">
+                        <div class="empty-state">
+                            <i class="fas fa-comments"></i>
+                            <h4>Chưa có phòng chat nào</h4>
+                            <p>Hệ thống chưa có cuộc trò chuyện nào</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+</div>

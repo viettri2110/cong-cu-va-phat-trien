@@ -1,0 +1,111 @@
+@model IEnumerable<TMDT.Models.StocktakeListViewModel>
+@{
+    ViewBag.Title = "Danh sách kiểm kê kho";
+    Layout = "~/Views/Shared/_Dashboard_1.cshtml";
+}
+
+<div class="content-wrapper">
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>Danh sách kiểm kê kho</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="@Url.Action("DashboardKho", "Warehouse")">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Kiểm kê kho</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-clipboard-check"></i> Danh sách phiếu kiểm kê</h3>
+                    <div class="card-tools">
+                        <a href="@Url.Action("TaoPhieuKiemKe", "Warehouse")" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i> Tạo phiếu kiểm kê mới
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered table-hover" id="stocktakeTable">
+                        <thead>
+                            <tr>
+                                <th>Mã phiếu</th>
+                                <th>Ngày kiểm kê</th>
+                                <th>Số SP kiểm</th>
+                                <th>Chênh lệch</th>
+                                <th>Trạng thái</th>
+                                <th>Hoàn thành</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var stocktake in Model)
+                            {
+                                <tr>
+                                    <td><strong>@stocktake.stocktakeCode</strong></td>
+                                    <td>@stocktake.stocktakeDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@stocktake.totalProductsChecked</td>
+                                    <td>
+                                        <strong class="@(stocktake.totalDiscrepancy != 0 ? "text-danger" : "text-success")">
+                                            @stocktake.totalDiscrepancy
+                                        </strong>
+                                    </td>
+                                    <td>
+                                        @if (stocktake.status == "InProgress")
+                                        {
+                                            <span class="badge badge-warning">Đang kiểm</span>
+                                        }
+                                        else if (stocktake.status == "Completed")
+                                        {
+                                            <span class="badge badge-success">Hoàn thành</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-secondary">@stocktake.status</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (stocktake.completedDate.HasValue)
+                                        {
+                                            @stocktake.completedDate.Value.ToString("dd/MM/yyyy")
+                                        }
+                                        else
+                                        {
+                                            <span>-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a href="@Url.Action("ChiTietKiemKe", "Warehouse", new { id = stocktake.idStocktake })" 
+                                           class="btn btn-sm btn-info" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#stocktakeTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Vietnamese.json"
+                },
+                "order": [[1, "desc"]]
+            });
+        });
+    </script>
+}

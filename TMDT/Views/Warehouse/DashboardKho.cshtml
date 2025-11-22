@@ -1,0 +1,202 @@
+@model TMDT.Models.WarehouseDashboardViewModel
+@{
+    ViewBag.Title = "Dashboard Kho";
+    Layout = "~/Views/Shared/_Dashboard_1.cshtml";
+}
+
+<div class="content-wrapper">
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>Dashboard Quản Lý Kho</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content">
+        <div class="container-fluid">
+            <!-- Thống kê tổng quan -->
+            <div class="row">
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-info">
+                        <div class="inner">
+                            <h3>@Model.TotalProducts</h3>
+                            <p>Tổng sản phẩm</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-success">
+                        <div class="inner">
+                            <h3>@Model.TotalInStock</h3>
+                            <p>Tổng tồn kho</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-warehouse"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-warning">
+                        <div class="inner">
+                            <h3>@Model.LowStockCount</h3>
+                            <p>Sắp hết hàng</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-danger">
+                        <div class="inner">
+                            <h3>@Model.OutOfStockCount</h3>
+                            <p>Hết hàng</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hoạt động gần đây -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-file-import"></i> Phiếu nhập gần đây</h3>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Mã phiếu</th>
+                                        <th>Ngày nhập</th>
+                                        <th>Số lượng</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var receipt in Model.RecentReceipts)
+                                    {
+                                        <tr>
+                                            <td>@receipt.receiptCode</td>
+                                            <td>@receipt.receiptDate.ToString("dd/MM/yyyy")</td>
+                                            <td>@receipt.totalQuantity</td>
+                                            <td><span class="badge badge-success">@receipt.status</span></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer">
+                            <a href="@Url.Action("DanhSachPhieuNhap", "Warehouse")" class="btn btn-sm btn-primary">
+                                Xem tất cả <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-file-export"></i> Phiếu xuất gần đây</h3>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Mã phiếu</th>
+                                        <th>Ngày xuất</th>
+                                        <th>Số lượng</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var issue in Model.RecentIssues)
+                                    {
+                                        <tr>
+                                            <td>@issue.issueCode</td>
+                                            <td>@issue.issueDate.ToString("dd/MM/yyyy")</td>
+                                            <td>@issue.totalQuantity</td>
+                                            <td><span class="badge badge-info">@issue.status</span></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer">
+                            <a href="@Url.Action("DanhSachPhieuXuat", "Warehouse")" class="btn btn-sm btn-primary">
+                                Xem tất cả <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sản phẩm cần chú ý -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-exclamation-circle"></i> Sản phẩm cần chú ý</h3>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Hình ảnh</th>
+                                        <th>Sản phẩm</th>
+                                        <th>Danh mục</th>
+                                        <th>Tồn kho</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var product in Model.AlertProducts)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <img src="@Url.Content("~/Assets/ImageProduct/" + product.imageProduct_1)" 
+                                                     style="width:50px;height:50px;object-fit:cover;" alt="@product.nameProduct" />
+                                            </td>
+                                            <td>@product.nameProduct</td>
+                                            <td>@product.categoryName</td>
+                                            <td><strong>@product.currentStock</strong></td>
+                                            <td>
+                                                @if (product.currentStock == 0)
+                                                {
+                                                    <span class="badge badge-danger">Hết hàng</span>
+                                                }
+                                                else if (product.currentStock < 5)
+                                                {
+                                                    <span class="badge badge-warning">Sắp hết</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <a href="@Url.Action("NhapHang", "Warehouse", new { idProduct = product.idProduct })" 
+                                                   class="btn btn-sm btn-success">
+                                                    <i class="fas fa-plus"></i> Nhập thêm
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

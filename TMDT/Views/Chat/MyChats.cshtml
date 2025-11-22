@@ -1,0 +1,150 @@
+@model List<TMDT.Models.ChatRoomViewModel>
+@{
+    ViewBag.Title = "Tin nhắn của tôi";
+    Layout = "~/Views/Shared/_TrangChu.cshtml";
+}
+
+<style>
+    .chat-list-container {
+        max-width: 1000px;
+        margin: 30px auto;
+        padding: 20px;
+    }
+    
+    .chat-list-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 10px 10px 0 0;
+    }
+    
+    .chat-item {
+        display: flex;
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+        transition: background 0.3s;
+        background: white;
+    }
+    
+    .chat-item:hover {
+        background: #f8f9fa;
+    }
+    
+    .chat-item:last-child {
+        border-radius: 0 0 10px 10px;
+    }
+    
+    .chat-item img {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        object-fit: cover;
+        margin-right: 15px;
+    }
+    
+    .chat-item-content {
+        flex: 1;
+    }
+    
+    .chat-item-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+    }
+    
+    .chat-item-name {
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .chat-item-time {
+        font-size: 12px;
+        color: #999;
+    }
+    
+    .chat-item-product {
+        font-size: 13px;
+        color: #667eea;
+        margin-bottom: 5px;
+    }
+    
+    .chat-item-message {
+        font-size: 14px;
+        color: #666;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .unread-badge {
+        background: #ff4757;
+        color: white;
+        border-radius: 12px;
+        padding: 2px 8px;
+        font-size: 11px;
+        font-weight: bold;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #999;
+    }
+    
+    .empty-state i {
+        font-size: 64px;
+        margin-bottom: 20px;
+        color: #ddd;
+    }
+</style>
+
+<div class="chat-list-container">
+    <div class="chat-list-header">
+        <h3 style="margin: 0;"><i class="fas fa-comments"></i> Tin nhắn của tôi</h3>
+        <p style="margin: 5px 0 0 0; opacity: 0.9;">Tất cả cuộc trò chuyện với người bán</p>
+    </div>
+    
+    @if (Model.Any())
+    {
+        <div class="chat-list">
+            @foreach (var chat in Model)
+            {
+                <div class="chat-item" onclick="location.href='@Url.Action("ChatRoom", "Chat", new { idRoom = chat.idRoom })'">
+                    <img src="~/Assets/ImageProduct/@chat.productImage" alt="Product" />
+                    <div class="chat-item-content">
+                        <div class="chat-item-header">
+                            <div class="chat-item-name">
+                                <i class="fas fa-store"></i> @chat.otherUserName
+                            </div>
+                            <div class="chat-item-time">
+                                @if (chat.lastMessageDate.HasValue)
+                                {
+                                    @chat.lastMessageDate.Value.ToString("dd/MM/yyyy HH:mm")
+                                }
+                            </div>
+                        </div>
+                        <div class="chat-item-product">
+                            <i class="fas fa-box"></i> @chat.productName - @String.Format("{0:N0} VNĐ", chat.productPrice)
+                        </div>
+                        <div class="chat-item-message">
+                            @if (chat.unreadCount > 0)
+                            {
+                                <span class="unread-badge">@chat.unreadCount</span>
+                            }
+                            @(chat.lastMessage ?? "Chưa có tin nhắn")
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state" style="background: white; border-radius: 0 0 10px 10px;">
+            <i class="fas fa-comments"></i>
+            <h4>Chưa có tin nhắn nào</h4>
+            <p>Bắt đầu trò chuyện với người bán từ trang sản phẩm</p>
+        </div>
+    }
+</div>

@@ -1,1 +1,48 @@
-.TMDT/Assets
+﻿## Visual Studio
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio cache/options
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# NuGet Packages
+packages/
+*.nupkg
+!packages/repositories.config
+
+# User-specific files
+*.suo
+*.user
+*.sln.docstates
+
+# Others
+*.Cache
+ClientBin/
+[Ss]tyle[Cc]op.*
+~$*
+*~
+*.dbmdl
+*.jfm
+*.pfx
+*.publishsettings
+node_modules/
+orleans.codegen.cs
+
+# Image uploads
+TMDT/Assets/ImageProduct/
+TMDT/Assets/ImageCategory/
