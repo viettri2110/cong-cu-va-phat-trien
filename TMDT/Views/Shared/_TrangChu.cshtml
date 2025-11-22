@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using System
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
@@ -24,6 +25,18 @@
     <link rel="stylesheet" href="~/Assets/_FeGit/css/lsb.css" />
     <!-- main css  -->
     <link href="~/Assets/_FeGit/css/main.css" rel="stylesheet" />
+    <!-- chatbot css  -->
+    <link rel="stylesheet" href="~/Assets/_FeGit/css/chatbot.css?v=4.0" />
+    <style>
+        .badge-danger {
+            background-color: #dc3545;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 11px;
+            margin-left: 5px;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -46,6 +59,34 @@
                         <li class="nav-item active">
                             <a class="nav-link" href="@Url.Action("TrangChu", "Home")"><i class="fas fa-home"></i> Trang chủ</a>
                         </li>
+                        @if (Session["idAccount"] != null && (Equals(Session["idRole"], 1) || Equals(Session["idRole"], 2)))
+                        {
+                            var unreadCount = 0;
+                            try
+                            {
+                                var chatDb = new TMDT.Models.ChatContext();
+                                int userId = int.Parse(Session["idAccount"].ToString());
+                                unreadCount = chatDb.ChatMessages
+                                    .Join(chatDb.ChatRooms,
+                                        msg => msg.idRoom,
+                                        room => room.idRoom,
+                                        (msg, room) => new { msg, room })
+                                    .Where(x => (x.room.idBuyer == userId || x.room.idSeller == userId)
+                                        && x.msg.idSender != userId
+                                        && !x.msg.isRead)
+                                    .Count();
+                            }
+                            catch { }
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("MyChats", "Chat")">
+                                    <i class="fas fa-comments"></i> Chat
+                                    @if (unreadCount > 0)
+                                    {
+                                        <span class="badge badge-danger">@unreadCount</span>
+                                    }
+                                </a>
+                            </li>
+                        }
                         <li class="cart">
                             @{Html.RenderAction("GioHangPartial", "Buyer"); }
                         </li>
@@ -128,8 +169,8 @@
                     <h3 style="padding-top: 20px;">Hỗ trợ khách hàng</h3>
                     <ul>
                         <li><a href="#">Địa chỉ Email: chodocu@gmail.com</a></li>
-                        <li><a href="#">Số điện thoại: 0548999999</a></li>
-                        <li><a href="#">Địa chỉ: Bình Thạnh, TP. Hồ Chí Minh</a></li>
+                        <li><a href="#">Số điện thoại: 0393440859</a></li>
+                        <li><a href="#">Địa chỉ: TP. Hồ Chí Minh</a></li>
                     </ul>
                 </div>
             </div>
@@ -148,5 +189,9 @@
     <script src="~/Assets/_FeGit/js/slick.min.js"></script>
     <script src="~/Assets/_FeGit/js/slickJS.js"></script>
     <script src="~/Assets/adsRemove.js"></script>
+    <!-- chatbot js  -->
+    <script src="~/Assets/_FeGit/js/chatbot.js?v=@DateTime.Now.Ticks"></script>
+    
+    @RenderSection("Scripts", required: false)
 </body>
 </html>

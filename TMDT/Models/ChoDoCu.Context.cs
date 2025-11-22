@@ -18,11 +18,13 @@ namespace TMDT.Models
         public ChoDoCuEntities()
             : base("name=ChoDoCuEntities")
         {
+            // Tắt validation để cho phép thêm entities mới không có trong EDMX
+            this.Configuration.ValidateOnSaveEnabled = false;
         }
     
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            throw new UnintentionalCodeFirstException();
+            // Không throw exception để cho phép thêm entities thủ công
         }
     
         public virtual DbSet<Category_Product> Category_Product { get; set; }
@@ -36,5 +38,6 @@ namespace TMDT.Models
         public virtual DbSet<Order> Orders { get; set; }
         public virtual DbSet<Product> Products { get; set; }
         public virtual DbSet<Role> Roles { get; set; }
+        public virtual DbSet<sysdiagram> sysdiagrams { get; set; }
     }
 }

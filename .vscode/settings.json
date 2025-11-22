@@ -1,0 +1,10 @@
+{
+  "razor.disabled": true,
+  "omnisharp.enableRoslynAnalyzers": false,
+  "omnisharp.enableEditorConfigSupport": false,
+  "csharp.suppressDotnetRestoreNotification": true,
+  "files.exclude": {
+    "**/obj": true,
+    "**/bin": true
+  }
+}

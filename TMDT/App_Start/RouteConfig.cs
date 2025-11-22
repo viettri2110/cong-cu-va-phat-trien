@@ -80,6 +80,8 @@ namespace TMDT
             routes.MapRoute("XoaGiohang", "gio-hang/xoa-gio-hang", new { controller = "Buyer", action = "XoaGiohang" });
             routes.MapRoute("GioHang", "gio-hang", new { controller = "Buyer", action = "GioHang" });
             routes.MapRoute("ThanhToan", "gio-hang/thanh-toan", new { controller = "Buyer", action = "ThanhToan" });
+            routes.MapRoute("ThanhToanCOD", "gio-hang/thanh-toan-cod", new { controller = "Buyer", action = "ThanhToanCOD" });
+            routes.MapRoute("ThanhToanThanhCong", "gio-hang/thanh-toan-thanh-cong", new { controller = "Buyer", action = "ThanhToanThanhCong" });
             routes.MapRoute("DanhSachMuaHang", "buyer/danh-sach-mua-hang", new { controller = "Buyer", action = "DanhSachMuaHang" });
             routes.MapRoute("ThemGioHang", "gio-hang/them-gio-hang", new { controller = "Buyer", action = "ThemGioHang" });
             /* end BuyerController */

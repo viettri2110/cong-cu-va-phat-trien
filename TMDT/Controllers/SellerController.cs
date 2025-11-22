@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -222,6 +222,28 @@ namespace TMDT.Controllers
                 //end ảnh
                 db.Products.Add(sp);
                 db.SaveChanges();
+
+                // TỰ ĐỘNG TẠO PHIẾU NHẬP KHO khi đăng sản phẩm mới
+                try
+                {
+                    int idProduct = sp.idProduct;
+                    int quantity = sp.amountProduct;
+                    
+                    db.Database.ExecuteSqlCommand(@"
+                        EXEC SP_CreateInitialWarehouseReceipt 
+                            @idProduct = @p0, 
+                            @idSeller = @p1, 
+                            @quantity = @p2, 
+                            @condition = @p3, 
+                            @notes = @p4
+                    ", idProduct, idAcc, quantity, null, "Nhập kho tự động khi đăng sản phẩm mới");
+                }
+                catch (Exception ex)
+                {
+                    // Log lỗi nhưng không làm gián đoạn flow đăng sản phẩm
+                    System.Diagnostics.Debug.WriteLine("Lỗi tạo phiếu nhập kho: " + ex.Message);
+                }
+
                 ViewData["Err"] = "(*) Đăng sản phẩm thành công vui lòng đợi duyệt";
             }
             return View();

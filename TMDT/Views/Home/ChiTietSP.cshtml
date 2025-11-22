@@ -1,4 +1,4 @@
-﻿@model IEnumerable<TMDT.Models._FullProduct>
+@model IEnumerable<TMDT.Models._FullProduct>
 @{
     foreach (var a in Model)
     {
@@ -80,9 +80,9 @@
 
                     }
                 }
-                <button class="chat__admin mt-3">
-                    <i class="fas fa-comment-dots"></i>Chat với người bán
-                </button>
+                <a href="@Url.Action("StartChat", "Chat", new { idProduct = a.idProduct, idSeller = a.idAccount })" class="chat__admin mt-3" style="display: block; text-decoration: none; text-align: center;">
+                    <i class="fas fa-comment-dots"></i> Chat với người bán
+                </a>
             </div>
         </div>
     </section>

@@ -57,6 +57,40 @@
                                 <p>Thông tin cá nhân</p>
                             </a>
                         </li>
+                        @if (Equals(Session["idRole"], 1) || Equals(Session["idRole"], 2))
+                        {
+                            var unreadCount = 0;
+                            if (Session["idAccount"] != null)
+                            {
+                                try
+                                {
+                                    var chatDb = new TMDT.Models.ChatContext();
+                                    int userId = int.Parse(Session["idAccount"].ToString());
+                                    unreadCount = chatDb.ChatMessages
+                                        .Join(chatDb.ChatRooms,
+                                            msg => msg.idRoom,
+                                            room => room.idRoom,
+                                            (msg, room) => new { msg, room })
+                                        .Where(x => (x.room.idBuyer == userId || x.room.idSeller == userId)
+                                            && x.msg.idSender != userId
+                                            && !x.msg.isRead)
+                                        .Count();
+                                }
+                                catch { }
+                            }
+                        <li class="nav-item">
+                            <a href="@Url.Action("MyChats", "Chat")" class="nav-link">
+                                <i class="nav-icon fas fa-comments"></i>
+                                <p>
+                                    Tin nhắn
+                                    @if (unreadCount > 0)
+                                    {
+                                        <span class="badge badge-danger right">@unreadCount</span>
+                                    }
+                                </p>
+                            </a>
+                        </li>
+                        }
                         @if (Equals(Session["idRole"], 1))
                         {                       
                         <li class="nav-header"><b class="text-white">Người bán</b> </li>
@@ -76,6 +110,49 @@
                             <a href="@Url.Action("DanhSachDatMua", "Seller")" class="nav-link">
                                 <i class="nav-icon fas fa-list-ol"></i>
                                 <p>Danh sách đơn hàng</p>
+                            </a>
+                        </li>
+                        <li class="nav-header"><b class="text-white">Quản lý kho</b> </li>
+                        <li class="nav-item">
+                            <a href="@Url.Action("DashboardKho", "Warehouse")" class="nav-link">
+                                <i class="nav-icon fas fa-warehouse"></i>
+                                <p>Dashboard kho</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@Url.Action("BaoCaoTonKho", "Warehouse")" class="nav-link">
+                                <i class="nav-icon fas fa-boxes"></i>
+                                <p>Báo cáo tồn kho</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@Url.Action("NhapHang", "Warehouse")" class="nav-link">
+                                <i class="nav-icon fas fa-dolly"></i>
+                                <p>Nhập hàng</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@Url.Action("DanhSachPhieuNhap", "Warehouse")" class="nav-link">
+                                <i class="nav-icon fas fa-file-import"></i>
+                                <p>Phiếu nhập kho</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@Url.Action("DanhSachPhieuXuat", "Warehouse")" class="nav-link">
+                                <i class="nav-icon fas fa-file-export"></i>
+                                <p>Phiếu xuất kho</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@Url.Action("LichSuNhapXuat", "Warehouse")" class="nav-link">
+                                <i class="nav-icon fas fa-history"></i>
+                                <p>Lịch sử nhập xuất</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@Url.Action("DanhSachKiemKe", "Warehouse")" class="nav-link">
+                                <i class="nav-icon fas fa-clipboard-check"></i>
+                                <p>Kiểm kê kho</p>
                             </a>
                         </li>
                         }
@@ -171,6 +248,18 @@
                             <a href="@Url.Action("DanhSachTaiKhoanVoHieuHoa", "Manager")" class="nav-link">
                                 <i class="nav-icon fas fa-ban"></i>
                                 <p>Tài khoản vô hiệu hóa</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@Url.Action("QuanLyChat", "Chat")" class="nav-link">
+                                <i class="nav-icon fas fa-comments"></i>
+                                <p>Quản lý chat</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@Url.Action("QuanLyChatBot", "Chat")" class="nav-link">
+                                <i class="nav-icon fas fa-robot"></i>
+                                <p>Quản lý ChatBot</p>
                             </a>
                         </li>
                         <li class="nav-item">

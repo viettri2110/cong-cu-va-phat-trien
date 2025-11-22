@@ -1,0 +1,273 @@
+@model TMDT.Models.CODOrderInfo
+@{
+    ViewBag.Title = "Thanh toán COD";
+    var money = System.Globalization.CultureInfo.GetCultureInfo("vi-VN");
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewBag.Title</title>
+    <!-- fontawesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" />
+    <!-- font gg -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;700&display=swap" rel="stylesheet" />
+    <!-- BS4 -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <!-- main css -->
+    <link rel="stylesheet" href="~/Assets/_FeGit/css/main.css" />
+    <style>
+        .cod-container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin: 30px auto;
+            max-width: 1200px;
+        }
+        .cod-header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px 10px 0 0;
+            margin: -30px -30px 30px -30px;
+        }
+        .cod-header h2 {
+            margin: 0;
+            font-weight: bold;
+        }
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+        }
+        .form-control {
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            padding: 10px 15px;
+        }
+        .form-control:focus {
+            border-color: #28a745;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+        }
+        .cart-summary {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .cart-item {
+            border-bottom: 1px solid #dee2e6;
+            padding: 15px 0;
+        }
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+        .cart-item img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        .total-amount {
+            background-color: #28a745;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .btn-submit-cod {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            color: white;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 50px;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        .btn-submit-cod:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+        .btn-back {
+            background-color: #6c757d;
+            color: white;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 50px;
+            width: 100%;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .btn-back:hover {
+            background-color: #5a6268;
+            color: white;
+            text-decoration: none;
+        }
+        .text-danger {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <header class="card__header">
+        <nav class="navbar navbar-expand-lg w-75 m-auto">
+            <a href="@Url.Action("TrangChu", "Home")"><img src="~/Assets/_FeGit/img/logo.png" alt=""></a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-shipping-fast"></i> Thanh toán COD</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container cod-container">
+        <div class="cod-header">
+            <h2><i class="fas fa-shipping-fast"></i> THANH TOÁN KHI NHẬN HÀNG (COD)</h2>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">Vui lòng điền đầy đủ thông tin người nhận hàng</p>
+        </div>
+
+        @using (Html.BeginForm("ThanhToanCOD", "Buyer", FormMethod.Post, new { @class = "needs-validation" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="row">
+                <div class="col-md-7">
+                    <h4 style="margin-bottom: 20px; color: #28a745; font-weight: bold;">
+                        <i class="fas fa-user-circle"></i> Thông tin người nhận
+                    </h4>
+
+                    @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.ReceiverName, new { @class = "control-label" })
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            </div>
+                            @Html.TextBoxFor(m => m.ReceiverName, new { @class = "form-control", placeholder = "Nhập họ tên người nhận hàng" })
+                        </div>
+                        @Html.ValidationMessageFor(m => m.ReceiverName, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.ReceiverPhone, new { @class = "control-label" })
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                            </div>
+                            @Html.TextBoxFor(m => m.ReceiverPhone, new { @class = "form-control", placeholder = "Nhập số điện thoại (VD: 0912345678)" })
+                        </div>
+                        @Html.ValidationMessageFor(m => m.ReceiverPhone, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.DeliveryAddress, new { @class = "control-label" })
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                            </div>
+                            @Html.TextAreaFor(m => m.DeliveryAddress, new { @class = "form-control", rows = 3, placeholder = "Nhập địa chỉ chi tiết (số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố)" })
+                        </div>
+                        @Html.ValidationMessageFor(m => m.DeliveryAddress, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Note, new { @class = "control-label" })
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-sticky-note"></i></span>
+                            </div>
+                            @Html.TextAreaFor(m => m.Note, new { @class = "form-control", rows = 2, placeholder = "Ghi chú cho người giao hàng (nếu có)" })
+                        </div>
+                        @Html.ValidationMessageFor(m => m.Note, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="col-md-5">
+                    <h4 style="margin-bottom: 20px; color: #28a745; font-weight: bold;">
+                        <i class="fas fa-shopping-cart"></i> Đơn hàng của bạn
+                    </h4>
+
+                    <div class="cart-summary">
+                        @if (Model.CartItems != null && Model.CartItems.Any())
+                        {
+                            foreach (var item in Model.CartItems)
+                            {
+                                <div class="cart-item">
+                                    <div class="row align-items-center">
+                                        <div class="col-4">
+                                            <img src="~/Assets/ImageProduct/@item.hinh" alt="@item.sanpham" class="img-fluid" />
+                                        </div>
+                                        <div class="col-8">
+                                            <h6 style="margin: 0; font-weight: 600;">@item.sanpham</h6>
+                                            <p style="margin: 5px 0; color: #666;">
+                                                Số lượng: <strong>@item.soluong</strong>
+                                            </p>
+                                            <p style="margin: 0; color: #28a745; font-weight: bold;">
+                                                @String.Format(money, "{0:c0}", item.thanhtien)
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+
+                    <div class="total-amount">
+                        <div>TỔNG TIỀN</div>
+                        <div style="font-size: 32px; margin-top: 10px;">
+                            @String.Format(money, "{0:c0}", Model.TotalAmount)
+                        </div>
+                        <div style="font-size: 14px; margin-top: 10px; opacity: 0.9;">
+                            (Thanh toán khi nhận hàng)
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info" style="background-color: #e7f7ee; border-color: #28a745; color: #155724;">
+                        <i class="fas fa-info-circle"></i> <strong>Lưu ý:</strong>
+                        <ul style="margin: 10px 0 0 0; padding-left: 20px;">
+                            <li>Vui lòng kiểm tra kỹ thông tin trước khi đặt hàng</li>
+                            <li>Bạn sẽ thanh toán bằng tiền mặt khi nhận được hàng</li>
+                            <li>Shipper sẽ liên hệ xác nhận trước khi giao hàng</li>
+                        </ul>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <button type="submit" class="btn btn-submit-cod">
+                                <i class="fas fa-check-circle"></i> XÁC NHẬN ĐẶT HÀNG
+                            </button>
+                        </div>
+                        <div class="col-12">
+                            <a href="@Url.Action("GioHang", "Buyer")" class="btn btn-back">
+                                <i class="fas fa-arrow-left"></i> Quay lại giỏ hàng
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div style="padding-top: 50px;"></div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@3.2.12/dist/jquery.validate.unobtrusive.min.js"></script>
+</body>
+</html>

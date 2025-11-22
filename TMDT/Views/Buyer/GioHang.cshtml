@@ -1,4 +1,4 @@
-﻿@using TMDT.Models;
+﻿ư@using TMDT.Models;
 @model List<_GioHang>
 @{
     ViewBag.Title = "Giỏ hàng";
@@ -108,6 +108,11 @@
                     <a href="@Url.Action("ThanhToan", "Buyer")" style="text-decoration: none;">
                         <div class="row px-3  mt-3">
                             <span class="col-sm-12 btn thanh-toan">Thanh toán</span>
+                        </div>
+                    </a>
+                    <a href="@Url.Action("ThanhToanCOD", "Buyer")" style="text-decoration: none;">
+                        <div class="row px-3  mt-3">
+                            <span class="col-sm-12 btn thanh-toan" style="background-color: #28a745; color: #fff;"><i class="fas fa-shipping-fast"></i> Thanh toán COD</span>
                         </div>
                     </a>
                     <a href="@Url.Action("PaymentWithPaypal", "Paypal")" style="text-decoration: none;">

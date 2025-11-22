@@ -1,0 +1,44 @@
+// THÊM VÀO SellerController.cs
+// Copy và paste vào cuối class SellerController, trước dấu }
+
+private readonly ChatContext chatDb = new ChatContext();
+
+// Danh sách chat của người bán
+public ActionResult DanhSachChat()
+{
+    if (Session["idAccount"] == null) return RedirectToAction("DangNhap", "Login");
+    if (!Equals(Session["idRole"], 3)) return HttpNotFound();
+
+    int sellerId = int.Parse(Session["idAccount"].ToString());
+
+    var rooms = from room in chatDb.ChatRooms
+                where room.idSeller == sellerId
+                join product in db.Products on room.idProduct equals product.idProduct
+                join buyer in db.Logins on room.idBuyer equals buyer.idAccount
+                select new { room, product, buyer };
+
+    var chatList = rooms.ToList().Select(r =>
+    {
+        var buyerInfo = db.infoAccounts.FirstOrDefault(i => i.idAccount == r.buyer.idAccount);
+        var lastMsg = chatDb.ChatMessages.Where(m => m.idRoom == r.room.idRoom)
+            .OrderByDescending(m => m.dateSent).FirstOrDefault();
+        var unreadCount = chatDb.ChatMessages.Count(m => m.idRoom == r.room.idRoom && m.idSender != sellerId && !m.isRead);
+
+        return new ChatRoomViewModel
+        {
+            idRoom = r.room.idRoom,
+            idProduct = r.product.idProduct,
+            productName = r.product.nameProduct,
+            productImage = r.product.imageProduct_1,
+            productPrice = r.product.priceProduct,
+            otherUserId = r.buyer.idAccount,
+            otherUserName = buyerInfo?.Fullname ?? r.buyer.Email,
+            otherUserEmail = r.buyer.Email,
+            lastMessage = lastMsg?.messageContent,
+            lastMessageDate = lastMsg?.dateSent,
+            unreadCount = unreadCount
+        };
+    }).OrderByDescending(c => c.lastMessageDate).ToList();
+
+    return View(chatList);
+}

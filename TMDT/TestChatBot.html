@@ -1,0 +1,276 @@
+<!-- TEST CHATBOT NHANH -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test ChatBot API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .test-section {
+            border: 2px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background: #ffba00;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #ff9800;
+        }
+        .result {
+            background: #f5f5f5;
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        input {
+            padding: 8px;
+            width: 300px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test ChatBot API</h1>
+    <p>Công cụ này giúp kiểm tra các API endpoint của ChatBot</p>
+
+    <!-- Test 1: Check Login -->
+    <div class="test-section">
+        <h3>1️⃣ Kiểm tra Đăng nhập</h3>
+        <button onclick="testLogin()">Test Login Status</button>
+        <div id="loginResult" class="result"></div>
+    </div>
+
+    <!-- Test 2: Send Message -->
+    <div class="test-section">
+        <h3>2️⃣ Gửi tin nhắn đến Admin</h3>
+        <input type="text" id="messageInput" placeholder="Nhập tin nhắn..." value="Test message from user">
+        <button onclick="testSendMessage()">Gửi tin nhắn</button>
+        <div id="sendResult" class="result"></div>
+    </div>
+
+    <!-- Test 3: Get Messages -->
+    <div class="test-section">
+        <h3>3️⃣ Lấy danh sách tin nhắn</h3>
+        <button onclick="testGetMessages()">Lấy tin nhắn</button>
+        <div id="getResult" class="result"></div>
+    </div>
+
+    <!-- Test 4: Get Unread Count -->
+    <div class="test-section">
+        <h3>4️⃣ Đếm tin nhắn chưa đọc</h3>
+        <button onclick="testUnreadCount()">Đếm tin nhắn</button>
+        <div id="countResult" class="result"></div>
+    </div>
+
+    <!-- Test 5: Check Table -->
+    <div class="test-section">
+        <h3>5️⃣ Kiểm tra Database Table</h3>
+        <p>Chạy SQL query sau trong SQL Server Management Studio:</p>
+        <div class="result">
+SELECT COUNT(*) as TotalMessages,
+       SUM(CASE WHEN isFromAdmin = 0 THEN 1 ELSE 0 END) as UserMessages,
+       SUM(CASE WHEN isFromAdmin = 1 THEN 1 ELSE 0 END) as AdminMessages,
+       SUM(CASE WHEN isRead = 0 THEN 1 ELSE 0 END) as UnreadMessages
+FROM ChatBotMessages;
+        </div>
+    </div>
+
+    <script>
+        function showResult(elementId, message, isSuccess) {
+            const el = document.getElementById(elementId);
+            el.innerHTML = message;
+            el.style.color = isSuccess ? 'green' : 'red';
+        }
+
+        // Test 1: Check Login
+        function testLogin() {
+            showResult('loginResult', '⏳ Đang kiểm tra...', false);
+            
+            fetch('/Chat/GetMyChatBotMessages')
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Response data:', data);
+                    if (data.success) {
+                        showResult('loginResult', 
+                            '✅ ĐÃ ĐĂNG NHẬP\n' +
+                            'Bạn có thể sử dụng chat với admin!', 
+                            true);
+                    } else {
+                        showResult('loginResult', 
+                            '❌ CHƯA ĐĂNG NHẬP\n' +
+                            'Vui lòng đăng nhập trước khi sử dụng chat với admin.\n' +
+                            'Nhấn "Đăng nhập" ở góc trên cùng trang web.', 
+                            false);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showResult('loginResult', 
+                        '❌ LỖI AJAX\n' +
+                        'Không thể kết nối đến server.\n' +
+                        'Error: ' + error.message, 
+                        false);
+                });
+        }
+
+        // Test 2: Send Message
+        function testSendMessage() {
+            const message = document.getElementById('messageInput').value;
+            if (!message) {
+                showResult('sendResult', '❌ Vui lòng nhập tin nhắn', false);
+                return;
+            }
+
+            showResult('sendResult', '⏳ Đang gửi tin nhắn...', false);
+
+            fetch('/Chat/SendUserChatBotMessage', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'message=' + encodeURIComponent(message)
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                if (data.success) {
+                    showResult('sendResult', 
+                        '✅ GỬI TIN NHẮN THÀNH CÔNG!\n' +
+                        'Tin nhắn: "' + message + '"\n' +
+                        'Đã lưu vào database.\n' +
+                        'Admin sẽ nhận được thông báo.', 
+                        true);
+                } else {
+                    showResult('sendResult', 
+                        '❌ GỬI TIN NHẮN THẤT BẠI\n' +
+                        'Lỗi: ' + data.message + '\n' +
+                        'Vui lòng kiểm tra đăng nhập.', 
+                        false);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showResult('sendResult', 
+                    '❌ LỖI AJAX\n' +
+                    'Error: ' + error.message, 
+                    false);
+            });
+        }
+
+        // Test 3: Get Messages
+        function testGetMessages() {
+            showResult('getResult', '⏳ Đang tải tin nhắn...', false);
+
+            fetch('/Chat/GetMyChatBotMessages')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Messages:', data);
+                    if (data.success) {
+                        if (data.messages.length === 0) {
+                            showResult('getResult', 
+                                '✅ KHÔNG CÓ TIN NHẮN\n' +
+                                'Bạn chưa có tin nhắn chatbot nào.', 
+                                true);
+                        } else {
+                            let messagesText = '✅ CÓ ' + data.messages.length + ' TIN NHẮN:\n\n';
+                            data.messages.forEach((msg, index) => {
+                                messagesText += (index + 1) + '. ';
+                                messagesText += msg.isFromAdmin ? '[ADMIN] ' : '[USER] ';
+                                messagesText += msg.content;
+                                messagesText += ' (' + msg.dateSent + ')';
+                                messagesText += msg.isRead ? ' [Đã đọc]' : ' [Chưa đọc]';
+                                messagesText += '\n';
+                            });
+                            showResult('getResult', messagesText, true);
+                        }
+                    } else {
+                        showResult('getResult', 
+                            '❌ KHÔNG THỂ TẢI TIN NHẮN\n' +
+                            'Lỗi: Chưa đăng nhập', 
+                            false);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showResult('getResult', 
+                        '❌ LỖI AJAX\n' +
+                        'Error: ' + error.message, 
+                        false);
+                });
+        }
+
+        // Test 4: Unread Count
+        function testUnreadCount() {
+            showResult('countResult', '⏳ Đang đếm...', false);
+
+            fetch('/Chat/GetChatBotUnreadCount')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Unread count:', data);
+                    if (data.count !== undefined) {
+                        showResult('countResult', 
+                            '✅ SỐ TIN NHẮN CHƯA ĐỌC: ' + data.count + '\n' +
+                            (data.count > 0 ? 'Bạn có tin nhắn mới từ Admin!' : 'Không có tin nhắn mới.'), 
+                            true);
+                    } else {
+                        showResult('countResult', 
+                            '❌ KHÔNG THỂ ĐẾM\n' +
+                            'Lỗi: Chưa đăng nhập', 
+                            false);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showResult('countResult', 
+                        '❌ LỖI AJAX\n' +
+                        'Error: ' + error.message, 
+                        false);
+                });
+        }
+
+        // Auto test on load
+        window.onload = function() {
+            console.log('🧪 ChatBot API Test Page loaded');
+            console.log('Trang này giúp test các API endpoint của ChatBot');
+            
+            // Auto check login status
+            setTimeout(() => {
+                testLogin();
+            }, 500);
+        };
+    </script>
+</body>
+</html>

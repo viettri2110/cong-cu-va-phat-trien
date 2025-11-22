@@ -302,9 +302,15 @@ namespace TMDT.Controllers
             return LoadBaiDang;
         }
         // GET: Home
-        public ActionResult ChiTietSP(string alias, int id)
+        public ActionResult ChiTietSP(string alias, int? id)
         {
-            var _id = Int32.Parse(id.ToString());
+            // Kiểm tra nếu id null hoặc alias null thì redirect về trang chủ
+            if (!id.HasValue || string.IsNullOrEmpty(alias))
+            {
+                return RedirectToAction("TrangChu");
+            }
+            
+            var _id = id.Value;
             IList<_FullProduct> infoProduct = new List<_FullProduct>();
             var query = from product in db.Products
                         join catePro in db.Category_Product on product.idCategory_Product equals catePro.idCategory_Product
